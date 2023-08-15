@@ -1,13 +1,13 @@
 package com.example.Mustwatchmovies.user.service;
 
 
-import com.google.gson.JsonObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
 public interface UserService {
-    JsonObject saveUser(@RequestBody String body);
+    ResponseEntity<String> saveUser(@RequestBody String body);
 
-    String loginUser(String body);
+    ResponseEntity<String> loginUser(String body);
     boolean isUsernameExists(String username);
 }

@@ -6,12 +6,14 @@ import com.example.Mustwatchmovies.user.service.UserService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -21,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public JsonObject saveUser(@RequestBody String body)
+    public ResponseEntity<String> saveUser(@RequestBody String body)
     {
         UserInfo userInfo=new UserInfo();
         JsonObject object=new JsonObject();
@@ -30,32 +32,37 @@ public class UserServiceImpl implements UserService {
        // String password=jsonObject.get("password").getAsString();
         String userId=jsonObject.get("userId").getAsString();
         String userName=jsonObject.get("userName").getAsString();
-        Boolean isUserExist= isUsernameExists( userName);
-        if(isUserExist) {
-            object.addProperty("error", true);
-            object.addProperty("message", "UserName Already exists");
-            return  object;
+        try {
+            UserInfo userInfo1=userInfoRepository.findByUserId(userId);
+            if(Objects.nonNull(userInfo1))
+                return new ResponseEntity<>("Account already exist with this email"
+                , HttpStatus.BAD_REQUEST);
         }
+        catch (Exception e)
+        {
+
+        }
+
         userInfo.setPassword(password);
         userInfo.setUserId(userId);
         userInfo.setUserName(userName);
         userInfoRepository.save(userInfo);
         object.addProperty("error",false);
         object.addProperty("message","saved successfully");
-        return object;
+        return new ResponseEntity<>("Data successfully saved.", HttpStatus.OK);
 
 
     }
-    public  String loginUser(@RequestBody String body){
+    public ResponseEntity<String> loginUser(@RequestBody String body){
         JsonObject jsonObject=new JsonParser().parse(body).getAsJsonObject();
-        String userName=jsonObject.get("userName").getAsString();
+        String userName=jsonObject.get("userId").getAsString();
         String password=jsonObject.get("password").getAsString();
         if (authenticateUser(userName,password))
-            return "logged in successfully";
-        else return "username or password does not match";
+             return new ResponseEntity<String>("Login successfully!", HttpStatus.OK);
+        else return new ResponseEntity<String>("Email or Password doesn't match", HttpStatus.BAD_REQUEST);
     }
-    public boolean authenticateUser(String username, String rawpassword) {
-        UserInfo user = userInfoRepository.findByUsername(username);
+    public boolean authenticateUser(String userId, String rawpassword) {
+        UserInfo user = userInfoRepository.findByUserId(userId);
         String password=user.getPassword();
 //        if (user != null &&rawpassword.equals(password)) {
 //            return true; // Authenticated succsessfully
