@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserInfoRepository extends JpaRepository<UserInfo,Integer> {
-    @Query("SELECT u FROM UserInfo u WHERE u.userName = :username")
-    UserInfo findByUsername(@Param("username") String username);
+    @Query("SELECT u FROM UserInfo u WHERE u.userId = :userId")
+    UserInfo findByUserId(@Param("userId") String userId);
 
     @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM UserInfo u WHERE u.userName = :username")
     boolean existsByUsername(String username);

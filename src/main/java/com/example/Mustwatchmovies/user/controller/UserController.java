@@ -3,6 +3,7 @@ package com.example.Mustwatchmovies.user.controller;
 import com.example.Mustwatchmovies.user.service.UserService;
 import com.google.gson.JsonObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -15,32 +16,35 @@ import javax.servlet.http.HttpServletResponse;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @CrossOrigin(origins = "http://127.0.0.1:5500/")
     @PostMapping("/signup")
-    public ResponseEntity<?> saveUser(@RequestBody String body, HttpServletResponse response)  {
+    public ResponseEntity<String> saveUser(@RequestBody String body ) {
         try {
-            JsonObject object = userService.saveUser(body);
-            if(object.get("error").equals(true))
-               return ResponseEntity.ok(object.get("message").getAsString());
-            else
-            return ResponseEntity.ok(object.get("message").getAsString());
+            ResponseEntity<String> response = userService.saveUser(body);
+//            if(object.get("error").equals("false"))
+                return response;
+//            else
+//                return new ResponseEntity<>(object.get("message").getAsString(), HttpStatus.BAD_REQUEST);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return (ResponseEntity<Object>) ResponseEntity.internalServerError();
+           return new  ResponseEntity<String>("internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-        @GetMapping("/login")
-        public ResponseEntity<Object> loginUser(@RequestBody String body)
-        {
-//
-            try {
-                String object=userService.loginUser(body);
-                return ResponseEntity.ok(object);
 
+    @CrossOrigin(origins = "http://127.0.0.1:5500/")
+        @PostMapping("/login")
+        public ResponseEntity<String> loginUser(@RequestBody String body)
+        {
+            try {
+                System.out.println("logg");
+                ResponseEntity<String> response=userService.loginUser(body);
+                return response;
             }catch (Exception e)
             {
                 e.printStackTrace();
-                return (ResponseEntity<Object>) ResponseEntity.internalServerError();
+                return new  ResponseEntity<String>("internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
             }
 
         }
